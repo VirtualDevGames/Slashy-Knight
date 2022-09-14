@@ -61737,6 +61737,14 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1558229367392681603, guid: b8dccfad75def644e8f8bccaec660bdd, type: 3}
+      propertyPath: dashCooldown
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1558229367392681603, guid: b8dccfad75def644e8f8bccaec660bdd, type: 3}
+      propertyPath: dashDuration
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1558229367392681603, guid: b8dccfad75def644e8f8bccaec660bdd, type: 3}
       propertyPath: dashTimeReset
       value: 1
       objectReference: {fileID: 0}

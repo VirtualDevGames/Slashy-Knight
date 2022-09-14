@@ -10,22 +10,17 @@ public class PlayerInputManager : MonoBehaviour {
     private Rigidbody2D rb;
     public Animator anim;
 
-    private Vector2 moveInput;
-
+    // MOVEMENT //
     public float speed;
-    public float dashSpeed;
-    public float dashTimeCounter, dashTime, dashCoolDown, dashCoolDownCounter;
-
-    private Vector2 currDirection;
-    private Vector2 dashDirection;
-
+    public float dashSpeed, dashDuration, dashDurationCounter, dashCoolDown, dashCoolDownCounter;
     private bool dashing = false, canDash = true;
 
+    private Vector2 moveInput;
+    private Vector2 dashDirection;
+
+    // Values for animation
     private float xVal = 0;
     private float yVal = 0;
-
-    private bool facingRight = false;
-
 
     private void Awake() {
         rb = GetComponent<Rigidbody2D>();
@@ -33,69 +28,69 @@ public class PlayerInputManager : MonoBehaviour {
 
     private void Update() {
 
-        if (dashing) {
-            Debug.Log("DASHING");
-            dashTimeCounter -= Time.deltaTime;
-           // rb.velocity = currDirection * dashSpeed;
-            if (dashTimeCounter <= 0) {
+        #region // Dashing //
+        // Check dashing phase (dashing or cooldown)
+        // Countdown timer for both
+        if (dashing) { // Dashing
+            dashDurationCounter -= Time.deltaTime;
+            if (dashDurationCounter <= 0) {
                 dashing = false;
                 dashCoolDownCounter = dashCoolDown;
-               // rb.velocity = currDirection * speed;
             }
-        }
-        else if(!canDash) {
+        } // Cooldown
+        else if (!canDash) {
             dashCoolDownCounter -= Time.deltaTime;
             if (dashCoolDownCounter <= 0) {
                 canDash = true;
-                Debug.Log("DASH RESET");
-                Debug.Log("canDash: " + canDash);
             }
         }
+        #endregion
     }
 
     private void FixedUpdate() {
-        //Debug.Log(dashing);
-        if(!dashing)
+
+        #region // Dashing //
+        if (!dashing)
             rb.MovePosition(rb.position + moveInput * speed * Time.fixedDeltaTime);
         else {
-            //Debug.Log("DASHING");
             rb.MovePosition(rb.position + dashDirection * dashSpeed * Time.fixedDeltaTime);
-            Debug.Log(rb.position + dashDirection * dashSpeed * Time.fixedDeltaTime);
         }
+        #endregion
     }
 
     public void OnMove(InputAction.CallbackContext ctx) {
-        //if (!dashing) {
-            anim.SetBool("Idle", false);
 
-            moveInput = ctx.ReadValue<Vector2>() * speed;
-            currDirection = rb.velocity;
+        // Animation - Disable idle Enable walking
+        anim.SetBool("Idle", false);
+        anim.SetBool("Walk", true);
+        anim.SetTrigger("Clicked");
 
-            xVal = ctx.ReadValue<Vector2>().x;
-            yVal = ctx.ReadValue<Vector2>().y;
+        // Animation - Set character direction
+        xVal = ctx.ReadValue<Vector2>().x;
+        yVal = ctx.ReadValue<Vector2>().y;
+        anim.SetFloat("X", xVal);
+        anim.SetFloat("Y", yVal);
 
-            anim.SetBool("Walk", true);
+        // Animation - Disable walking Enable idle
+        if (ctx.canceled) {
+            anim.SetBool("Walk", false);
+            anim.SetBool("Idle", true);
             anim.SetTrigger("Clicked");
+        }
 
-            anim.SetFloat("X", xVal);
-            anim.SetFloat("Y", yVal);
-
-            if (ctx.canceled) {
-                anim.SetBool("Walk", false);
-                anim.SetBool("Idle", true);
-                anim.SetTrigger("Clicked");
-            }
-        //}
+        // Store direction input for movement
+        moveInput = ctx.ReadValue<Vector2>() * speed;
     }
 
     public void OnDash(InputAction.CallbackContext ctx) {
-        
-        if (!dashing && canDash) {
+
+        // Check if player can dash
+        // Set booleans and cooldown
+        if (canDash) {
             dashDirection = moveInput;
             dashing = true;
             canDash = false;
-            dashTimeCounter = dashTime;
-            Debug.Log(dashTimeCounter + " dash time counter");
+            dashDurationCounter = dashDuration;
         }
     }
 }
