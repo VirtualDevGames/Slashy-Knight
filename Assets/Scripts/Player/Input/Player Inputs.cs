@@ -35,6 +35,15 @@ public partial class @PlayerInputs : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Dash"",
+                    ""type"": ""Button"",
+                    ""id"": ""ce7f6d27-6928-44bc-93e2-558d394b95a5"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -92,6 +101,17 @@ public partial class @PlayerInputs : IInputActionCollection2, IDisposable
                     ""action"": ""Move"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""771ed0e9-f8ac-4500-a00b-b886cdf7910d"",
+                    ""path"": ""<Keyboard>/shift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Dash"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -101,6 +121,7 @@ public partial class @PlayerInputs : IInputActionCollection2, IDisposable
         // Walk
         m_Walk = asset.FindActionMap("Walk", throwIfNotFound: true);
         m_Walk_Move = m_Walk.FindAction("Move", throwIfNotFound: true);
+        m_Walk_Dash = m_Walk.FindAction("Dash", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -161,11 +182,13 @@ public partial class @PlayerInputs : IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Walk;
     private IWalkActions m_WalkActionsCallbackInterface;
     private readonly InputAction m_Walk_Move;
+    private readonly InputAction m_Walk_Dash;
     public struct WalkActions
     {
         private @PlayerInputs m_Wrapper;
         public WalkActions(@PlayerInputs wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_Walk_Move;
+        public InputAction @Dash => m_Wrapper.m_Walk_Dash;
         public InputActionMap Get() { return m_Wrapper.m_Walk; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -178,6 +201,9 @@ public partial class @PlayerInputs : IInputActionCollection2, IDisposable
                 @Move.started -= m_Wrapper.m_WalkActionsCallbackInterface.OnMove;
                 @Move.performed -= m_Wrapper.m_WalkActionsCallbackInterface.OnMove;
                 @Move.canceled -= m_Wrapper.m_WalkActionsCallbackInterface.OnMove;
+                @Dash.started -= m_Wrapper.m_WalkActionsCallbackInterface.OnDash;
+                @Dash.performed -= m_Wrapper.m_WalkActionsCallbackInterface.OnDash;
+                @Dash.canceled -= m_Wrapper.m_WalkActionsCallbackInterface.OnDash;
             }
             m_Wrapper.m_WalkActionsCallbackInterface = instance;
             if (instance != null)
@@ -185,6 +211,9 @@ public partial class @PlayerInputs : IInputActionCollection2, IDisposable
                 @Move.started += instance.OnMove;
                 @Move.performed += instance.OnMove;
                 @Move.canceled += instance.OnMove;
+                @Dash.started += instance.OnDash;
+                @Dash.performed += instance.OnDash;
+                @Dash.canceled += instance.OnDash;
             }
         }
     }
@@ -192,5 +221,6 @@ public partial class @PlayerInputs : IInputActionCollection2, IDisposable
     public interface IWalkActions
     {
         void OnMove(InputAction.CallbackContext context);
+        void OnDash(InputAction.CallbackContext context);
     }
 }
